@@ -2,6 +2,8 @@ package com.example.artwood.client;
 
 import com.example.artwood.shared.ConnectionDB;
 import com.example.artwood.shared.Utils;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import java.sql.*;
 import java.time.LocalDateTime;
@@ -11,14 +13,17 @@ import java.util.List;
 import static com.mysql.cj.conf.PropertyKey.logger;
 
 public class ClientDaoImp implements ClientDao {
+    private static   final Logger logger = LogManager.getLogger();
     private Connection connection;
 
     public ClientDaoImp() {
         connection = ConnectionDB.getInstance();
+        logger.info("Connection established");
     }
 
     @Override
     public boolean insertClient(Client client) {
+        logger.info("Attempting to insert client");
         try {
             String query = "INSERT INTO  client (name, email, phone, adress, client_uuid) VALUES (?,?,?,?,?)";
             PreparedStatement statement = connection.prepareStatement(query);
@@ -29,18 +34,19 @@ public class ClientDaoImp implements ClientDao {
             statement.setString(5,client.getUuid());
             int i = statement.executeUpdate();
             if(i == 1){
-                Utils.printInfoMessage("Client successfully Created ");
+                logger.info("Client successfully Created ");
                 return true;
             }
         } catch (SQLException e) {
-            throw new RuntimeException(e);
+            logger.error("Error inserting client", e);
         }
-        Utils.printWarningMessage("Client Not Createded in DataBase ");
+        logger.warn("Client Not Created in DataBase ");
         return false;
     }
 
     @Override
     public boolean deleteClient(String uuid) {
+        logger.info("Attempting to delete client");
         try (
                 PreparedStatement preparedStatement = connection.prepareStatement(
                         "DELETE FROM client WHERE client_uuid = ?"
@@ -48,19 +54,20 @@ public class ClientDaoImp implements ClientDao {
             preparedStatement.setString(1, uuid);
             int result = preparedStatement.executeUpdate();
             if ( result ==1 ){
-                Utils.printInfoMessage("Client Deleted");
+                logger.info("Client Deleted");
                 return true;
             }
         } catch (SQLException e) {
 
-            e.printStackTrace();
+            logger.error("Error deleting client", e);
         }
-        Utils.printWarningMessage("Client Not Deleted");
+       logger.warn("Client Not Deleted");
         return false;
     }
 
     @Override
     public boolean updateClient(String uuid, Client client) {
+        logger.info("Attempting to update client");
         try {
 
             String query = "update client set name = ?, email = ?, phone = ?, adress = ? where client_uuid = ?;";
@@ -74,20 +81,21 @@ public class ClientDaoImp implements ClientDao {
             if (i == 1) {
 
                 preparedStatement.close();
-                Utils.printInfoMessage("Client successfully updated");
+                logger.info("Client successfully updated");
                 return true;
             }
 
 
         } catch (SQLException e) {
-            throw new RuntimeException(e);
+            logger.error("Error updating client", e);
         }
-        Utils.printWarningMessage("Client not updated");
+        logger.warn("Client not updated in database");
         return false;
     }
 
     @Override
     public List<Client> getAllClient() {
+        logger.info("Attempting to get all client");
         List<Client> clientList = new ArrayList<>();
 
         try {
@@ -99,17 +107,19 @@ public class ClientDaoImp implements ClientDao {
                 Client client = generateClientFromResultSet(resultSet);
                 clientList.add(client);
             }
-            Utils.printInfoMessage("Les clients ont été récupérés avec succès depuis la base de données.");
+            logger.info(" successfully get all client");
 
         } catch (SQLException e) {
-            throw new RuntimeException(e);
+            logger.error("Error getting client", e);
         }
+        logger.warn("no client in database");
         return clientList;
 
     }
 
     @Override
     public Client getClientByUuid(String uuid) {
+        logger.info("Attempting to get client");
         try (
                 PreparedStatement preparedStatement = connection.prepareStatement(
                         "select * from  client where  client_uuid = ?;"
@@ -118,14 +128,14 @@ public class ClientDaoImp implements ClientDao {
 
             try (ResultSet resultSet = preparedStatement.executeQuery()) {
                 if (resultSet.next()) {
-                    Utils.printInfoMessage("client récupéré avec succès depuis la base de données.");
+                    logger.info("Client successfully retrieved");
                     return generateClientFromResultSet(resultSet);
                 }
             }
         } catch (SQLException e) {
-            e.printStackTrace();
+            logger.error("Error getting client", e);
         }
-        Utils.printWarningMessage("Ni client trouver");
+        logger.warn("Client not found in database");
         return null;
     }
     private Client generateClientFromResultSet(ResultSet resultSet) throws SQLException {
