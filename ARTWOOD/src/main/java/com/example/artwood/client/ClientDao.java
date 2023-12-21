@@ -6,7 +6,7 @@ public interface ClientDao {
      boolean insertClient(Client client);
      boolean deleteClient(String uuid);
      boolean updateClient(String uuid , Client client);
-     List<Client> getAllClient();
+     List<Client> getAllClients();
      Client getClientByUuid(String uuid);
 
 }

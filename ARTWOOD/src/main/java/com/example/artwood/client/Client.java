@@ -17,6 +17,8 @@ public class Client {
         this.adress = adress;
     }
 
+
+
     public String getUuid() {
         return uuid;
     }

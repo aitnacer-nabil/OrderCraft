@@ -35,6 +35,6 @@ public class ClientService {
 
     public List<Client> getAllClients() {
         logger.info("Fetching all clients");
-        return clientDao.getAllClient();
+        return clientDao.getAllClients();
     }
 }

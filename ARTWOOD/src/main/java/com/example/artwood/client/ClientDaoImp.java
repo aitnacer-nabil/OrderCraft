@@ -58,7 +58,7 @@ public class ClientDaoImp implements ClientDao {
                 return true;
             }
         } catch (SQLException e) {
-
+            //TODO java.sql.SQLIntegrityConstraintViolationException
             logger.error("Error deleting client", e);
         }
        logger.warn("Client Not Deleted");
@@ -76,7 +76,7 @@ public class ClientDaoImp implements ClientDao {
             preparedStatement.setString(2, client.getEmail());
             preparedStatement.setString(3, client.getPhone());
             preparedStatement.setString(4, client.getAdress());
-            preparedStatement.setString(5, client.getUuid());
+            preparedStatement.setString(5, uuid);
             int i = preparedStatement.executeUpdate();
             if (i == 1) {
 
@@ -94,7 +94,7 @@ public class ClientDaoImp implements ClientDao {
     }
 
     @Override
-    public List<Client> getAllClient() {
+    public List<Client> getAllClients() {
         logger.info("Attempting to get all client");
         List<Client> clientList = new ArrayList<>();
 
@@ -112,7 +112,7 @@ public class ClientDaoImp implements ClientDao {
         } catch (SQLException e) {
             logger.error("Error getting client", e);
         }
-        logger.warn("no client in database");
+
         return clientList;
 
     }
@@ -143,7 +143,7 @@ public class ClientDaoImp implements ClientDao {
         String name = resultSet.getString("name");
         String  phone= resultSet.getString("phone");
         String email = resultSet.getString("email");
-        String address = resultSet.getString("address");
+        String address = resultSet.getString("adress");
         Client client = new Client(name,email,phone,address);
         client.setUuid(uuid);
 
