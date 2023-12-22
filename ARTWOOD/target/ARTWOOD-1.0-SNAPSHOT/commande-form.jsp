@@ -140,22 +140,24 @@
                 </tbody>
             </table>
             <div class="focusguard" id="btnAjoute" tabindex="8" ></div>
-            <button id="btnadd" type="button" id="save" class="btn btn-info" onclick="addCommande()" style="display: none">Ajouter
-            </button>
+
+            <form id="myForm" action="<%=request.getContextPath()%>/Commande/add" method="POST">
+                <!-- Ajoutez vos champs de formulaire ici -->
+                <input type="hidden" name="para" id="para" value='' /> <!-- Remplacez par vos données JSON réelles -->
+                <button  class="btn btn-info" id="submitButton">Ajouter</button>
+            </form>
         </div>
     </div>
 </div>
 
-<script src="component/jquery/jquery.js" type="text/javascript"></script>
-
+<script
+        src="https://code.jquery.com/jquery-3.7.1.min.js"
+        integrity="sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo="
+        crossorigin="anonymous"></script>
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
 
 
-<script src="component/shortcut.js" type="text/javascript"></script>
 
-
-<script src="component/jquery.validate.min.js" type="text/javascript"></script>
-<script src="//cdn.datatables.net/1.10.19/js/jquery.dataTables.min.js" type="text/javascript"></script>
 <script>
 
     let selectedProduit = null;
@@ -305,12 +307,16 @@
         document.getElementById('qty').value = "";
         document.getElementById('total_cost').value = "total_cost";
     }
+    let rows = [];
     function deleterow(e)
     {
         // console.log(produits);
         $(e).parent().parent().remove();
+        rows.push(e);
      //
         var uuid = $(e).attr('uuid');
+
+
         // console.log( typeof (uuid));
         // console.log(uuid);
         produits = produits.filter(produit=> produit.uuid !== uuid);
@@ -325,12 +331,49 @@
             document.getElementById("btnadd").style.display ="inline-block";
         }
     }
+    var jsonString;
     function addCommande(){
         if(produits.length === 0 || selectedClient === null)return;
-        let totalAmount =0;
-        produits.forEach(p => totalAmount += p.amount);
-        console.log(totalAmount);
+
+        let sendProduit = produits.map(produi =>({
+            uuid:produi.uuid,
+            qte_order:produi.qte_order,
+            produit_amount : produi.amount
+        }));
+        let commande ={
+            client_id:selectedClient.id,
+            list_produits: sendProduit,
+        }
+
+        jsonString = JSON.stringify(commande);
+
+
     }
+    document.getElementById("myForm").addEventListener("submit", function(event) {
+        event.preventDefault();// Empêche l'envoi du formulaire par défaut
+        addCommande();
+        document.getElementById("para").value = jsonString;
+        var form = event.target;
+        var formData = new FormData(form);
+
+        // Vous pouvez ajouter d'autres données au besoin, par exemple :
+        // formData.append("autreChamp", "valeur");
+
+        fetch(form.action, {
+            method: form.method,
+            body: formData
+        })
+            .then(response => response.json())
+            .then(data => {
+                console.log('Succès :', data);
+                // Gérez la réponse ici si nécessaire
+            })
+            .catch(error => {
+                console.error('Erreur :', error);
+                // Gérez l'erreur ici si nécessaire
+            });
+    });
+
 </script>
 </body>
 </html>
