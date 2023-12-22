@@ -9,7 +9,19 @@ public class Produit {
     private float prix;
     private int qte_stock;
 
+    @Override
+    public String toString() {
+        return "Produit{" +
+                "uuid='" + uuid + '\'' +
+                ", name='" + name + '\'' +
+                ", description='" + description + '\'' +
+                ", prix=" + prix +
+                ", qte_stock=" + qte_stock +
+                '}';
+    }
+
     public Produit(String name, String description, float prix, int qte_stock) {
+        this.uuid = Utils.GenerateId();
         this.name = name;
         this.description = description;
         this.prix = prix;

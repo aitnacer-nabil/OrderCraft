@@ -10,8 +10,7 @@ CREATE TABLE IF NOT EXISTS `produit`
     `description`  text        NOT NULL,
     `prix`         float       NOT NULL,
     `qte_stock`    int         NOT NULL DEFAULT '0',
-    `qte_order`    int         NOT NULL DEFAULT '0',
-    `produit_uuid` varchar(6)  NOT NULL,
+    `produit_uuid` varchar(6)  NOT NULL unique,
     PRIMARY KEY (`produit_id`)
 ) ENGINE = InnoDB
   AUTO_INCREMENT = 11
@@ -56,7 +55,8 @@ CREATE TABLE IF NOT EXISTS `commande`
     `date_update`     timestamp  NOT NULL,
     `client_id`       int                                      DEFAULT NULL,
     `commande_status` enum ('PREPARATION','COMPLET','ANNULLE') DEFAULT NULL,
-    `commande_uuid`   varchar(6) NOT NULL,
+    `commande_uuid`   varchar(6) NOT NULL unique,
+    `commande_total` float not null default '0.0',
     PRIMARY KEY (`commande_id`),
     KEY `client_id` (`client_id`),
     CONSTRAINT `commande_ibfk_2` FOREIGN KEY (`client_id`) REFERENCES `client` (`client_id`)
@@ -77,6 +77,8 @@ CREATE TABLE IF NOT EXISTS `commande_produit`
 (
     `commande_id` int NOT NULL,
     `produit_id`  int NOT NULL,
+    `qte_order`    int NOT NULL DEFAULT '0',
+    `amount_per_produit` float not null default '0.0',
     PRIMARY KEY (`commande_id`, `produit_id`),
     KEY `produit_id` (`produit_id`),
     CONSTRAINT `commande_produit_ibfk_1` FOREIGN KEY (`commande_id`) REFERENCES `commande` (`commande_id`),
@@ -85,19 +87,19 @@ CREATE TABLE IF NOT EXISTS `commande_produit`
   DEFAULT CHARSET = utf8mb4
   COLLATE = utf8mb4_0900_ai_ci;
 -- Dumping data for table wood.produit: ~10 rows (approximately)
-INSERT INTO `produit` (`produit_id`, `name`, `description`, `prix`, `qte_stock`, `qte_order`, `produit_uuid`)
-VALUES (1, 'Moroccan Table', 'Handcrafted wooden table inspired by Moroccan design.', 250, 16, 0, '3a12bb'),
-       (2, 'Atlas Carpet', 'Authentic Moroccan carpet with traditional patterns.', 180, 11, 0, '3a12c8'),
-       (3, 'Argan Wood Chair', 'Elegant chair made from Argan wood, known for its durability.', 320, 16, 0, '3a12cb'),
-       (4, 'Safi Ceramic Vase', 'Hand-painted ceramic vase from the city of Safi.', 120, 10, 0, '3a12cf'),
-       (5, 'Fez Lantern', 'Intricate metal lantern inspired by traditional Fez craftsmanship.', 150, 20, 0, '3a12d3'),
-       (6, 'Chefchaouen Pillow Set', 'Set of vibrant pillows inspired by the colors of Chefchaouen.', 90, 10, 0,
+INSERT INTO `produit` (`produit_id`, `name`, `description`, `prix`, `qte_stock`,  `produit_uuid`)
+VALUES (1, 'Moroccan Table', 'Handcrafted wooden table inspired by Moroccan design.', 250, 16, '3a12bb'),
+       (2, 'Atlas Carpet', 'Authentic Moroccan carpet with traditional patterns.', 180, 11,  '3a12c8'),
+       (3, 'Argan Wood Chair', 'Elegant chair made from Argan wood, known for its durability.', 320, 16,  '3a12cb'),
+       (4, 'Safi Ceramic Vase', 'Hand-painted ceramic vase from the city of Safi.', 120, 10,  '3a12cf'),
+       (5, 'Fez Lantern', 'Intricate metal lantern inspired by traditional Fez craftsmanship.', 150, 20, '3a12d3'),
+       (6, 'Chefchaouen Pillow Set', 'Set of vibrant pillows inspired by the colors of Chefchaouen.', 90, 10,
         '3a12d7'),
-       (7, 'Essaouira Hammock', 'Comfortable hammock made with traditional weaving techniques.', 200, 9, 0, '3a12df'),
-       (8, 'Tangier Tea Set', 'Artisanal tea set with intricate patterns from Tangier.', 180, 10, 0, '3a12ea'),
-       (9, 'Marrakech Mirror', 'Decorative mirror featuring designs inspired by Marrakech.', 280, 14, 0, '3a12f9'),
+       (7, 'Essaouira Hammock', 'Comfortable hammock made with traditional weaving techniques.', 200, 9,  '3a12df'),
+       (8, 'Tangier Tea Set', 'Artisanal tea set with intricate patterns from Tangier.', 180, 10,  '3a12ea'),
+       (9, 'Marrakech Mirror', 'Decorative mirror featuring designs inspired by Marrakech.', 280, 14,  '3a12f9'),
        (10, 'Atlas Mountains Painting', 'Canvas painting depicting the scenic beauty of the Atlas Mountains.', 300, 8,
-        0, '3a12fb');
+         '3a12fb');
 -- Dumping data for table wood.commande_produit: ~0 rows (approximately)
 INSERT INTO `commande_produit` (`commande_id`, `produit_id`)
 VALUES (4, 1),
@@ -194,3 +196,4 @@ SELECT  name, description, prix, produit_uuid,qte_stock from produit;
 select * from  client;
 select client_uuid,name,email,adress,phone from client;
 select * from  client;
+SELECT  name, description, prix, produit_uuid,qte_stock from produit;

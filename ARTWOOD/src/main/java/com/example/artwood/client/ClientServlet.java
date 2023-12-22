@@ -9,7 +9,7 @@ import org.apache.logging.log4j.Logger;
 import java.io.IOException;
 import java.util.List;
 
-@WebServlet(name = "Client", urlPatterns = {"/Client","/Client/*"})
+@WebServlet(name = "Client", urlPatterns = {"/","/Client","/Client/*"})
 public class ClientServlet extends HttpServlet {
     private static   final Logger logger = LogManager.getLogger(ClientServlet.class);
     private ClientService clientService;
@@ -54,10 +54,6 @@ public class ClientServlet extends HttpServlet {
 
         logger.info("Action: " + action);
         switch (action) {
-            case "/Client/new":
-                logger.info("Showing add form...");
-                showAddForm(request,response);
-                break;
             case "/Client/insert":
                 logger.info("Inserting client..."); // Log the case
 
@@ -92,26 +88,26 @@ public class ClientServlet extends HttpServlet {
     }
     private void insertClient(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         logger.info("Inserting client...");
-        String name = request.getParameter("name");
-        String email = request.getParameter("email");
-        String phone = request.getParameter("phone");
-        String adress = request.getParameter("adress");
-
-        Client client = new Client(name, email, phone, adress);
-        clientService.addClient(client);
+        clientService.addClient(generateClientFromRequestPatameter(request));
         response.sendRedirect("list");
         logger.info("Client inserted and redirected to list");
     }
     private void updateClient(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-        String id = request.getParameter("id");
+
+        clientService.updateClient(getIdFromRequestParam(request),generateClientFromRequestPatameter(request));
+        response.sendRedirect("list");
+    }
+    private Client generateClientFromRequestPatameter(HttpServletRequest request){
+
         String name = request.getParameter("name");
         String email = request.getParameter("email");
         String phone = request.getParameter("phone");
         String adress = request.getParameter("adress");
 
-        Client client = new Client(name, email, phone, adress);
-        clientService.updateClient(id,client);
-        response.sendRedirect("list");
+        return new Client(name, email, phone, adress);
+    }
+    private String getIdFromRequestParam(HttpServletRequest request){
+        return   request.getParameter("id");
     }
     private void deleteClient(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 

@@ -15,6 +15,6 @@
 <c:out value="HEllo World" ></c:out>
 <br/>
 <h1>HEllo</h1>
-<a href="hello-servlet">Hello Servlet</a>
+<a href="commande-form.jsp">Hello Servlet</a>
 </body>
 </html>
