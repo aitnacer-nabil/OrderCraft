@@ -1,8 +1,12 @@
 package com.example.artwood.controller;
 
+import com.example.artwood.dto.OrderDTO;
+import com.example.artwood.dto.ProduitDTO;
 import com.example.artwood.model.Client;
 import com.example.artwood.model.Produit;
 import com.example.artwood.service.CommandeService;
+import com.google.gson.Gson;
+import com.google.gson.JsonObject;
 import jakarta.servlet.RequestDispatcher;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
@@ -12,10 +16,12 @@ import jakarta.servlet.http.HttpServletResponse;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.PrintWriter;
 import java.util.List;
 
-@WebServlet(name = "commande",urlPatterns = {"/Commande","/Commande/*"})
+@WebServlet(name = "Commande",urlPatterns = {"/","/Commande","/Commande/*"})
 public class CommandeServelt extends HttpServlet {
     private static   final Logger logger = LogManager.getLogger(CommandeServelt.class);
     CommandeService commandeService;
@@ -29,7 +35,7 @@ public class CommandeServelt extends HttpServlet {
         String action = req.getServletPath() + (req.getPathInfo() != null ? req.getPathInfo() : "");
 
         logger.info("Commande Action: " + action);
-        if (action.contains("/Commande/component/")) return;
+
         switch (action) {
             case "/Commande/add":
                 logger.info("Inserting Commande..."); // Log the case
@@ -39,29 +45,70 @@ public class CommandeServelt extends HttpServlet {
 
             default:
                 logger.info("Listing Commande...");
-
+                listCommandes(req,resp);
                 break;
         }
     }
 
-    @Override
-    protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-        super.doPost(request, response);
-        String action = request.getServletPath() + (request.getPathInfo() != null ? request.getPathInfo() : "");
 
-        logger.info("Action: " + action);
+
+    @Override
+    protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+
+        String action = req.getServletPath() + (req.getPathInfo() != null ? req.getPathInfo() : "");
+
+        logger.info(" POST Action: " + action);
         switch (action) {
             case "/Commande/add":
-                addCommande(request,response);
+                addCommande(req,resp);
+                break;
+            default:
+                logger.info("Listing Commande...");
+                listCommandes(req,resp);
                 break;
 
         }
     }
 
     private void addCommande(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+//        logger.info("Start To Add Commande to list");
+//        logger.info(request.getParameter("para"));
+//        String para = request.getParameter("data");
+//        if (para != null) {
+//            logger.info("Parameter 'para': " + para);
+//          response.sendRedirect("Commande");
+//        } else {
+//            response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+//            logger.error("Le paramètre 'para' est manquant dans la requête.");
+//        }
         logger.info("Start To Add Commande to list");
-        logger.info(request.getParameter("para"));
-        response.sendRedirect("add");
+
+        // Récupérer le corps de la requête
+        StringBuilder requestBody = new StringBuilder();
+        BufferedReader reader = request.getReader();
+        String line;
+        while ((line = reader.readLine()) != null) {
+            requestBody.append(line);
+        }
+
+        // Utiliser Gson pour désérialiser le corps JSON en un objet Java
+        Gson gson = new Gson();
+
+        // Vous pouvez maintenant accéder aux propriétés de l'objet JSON
+        OrderDTO orderDTO = gson.fromJson(requestBody.toString(), OrderDTO.class);
+
+        // Maintenant, vous pouvez utiliser l'objet OrderDTO
+        logger.info("Client ID: " + orderDTO.getClientId());
+        logger.info("Order DTO: " + orderDTO);
+        for (ProduitDTO produitDTO : orderDTO.getListProduits()) {
+            logger.info("UUID: " + produitDTO.getUuid());
+            logger.info("Quantité Commandée: " + produitDTO.getQteOrder());
+            logger.info("Montant du Produit: " + produitDTO.getProduitAmount());
+        }
+
+
+        // Redirection après traitement
+        response.sendRedirect("list");
     }
 
     private void showAddForm(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
@@ -74,5 +121,13 @@ public class CommandeServelt extends HttpServlet {
         request.setAttribute("produits",produits);
         dispatcher.forward(request, response);
         logger.info("Forwarded to commande-form.jsp");
+    }
+    private void listCommandes(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+
+//        List<Client> clients = clientService.getAllClients();
+//        request.setAttribute("listClient",clients);
+        RequestDispatcher dispatcher = request.getRequestDispatcher("/commande-list.jsp");
+        dispatcher.forward(request, response);
+        logger.info("Forwarded to commande-list.jsp");
     }
 }

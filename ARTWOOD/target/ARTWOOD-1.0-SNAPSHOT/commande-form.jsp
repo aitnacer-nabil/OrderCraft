@@ -20,10 +20,12 @@
         </div>
 
         <ul class="navbar-nav">
+            <li><a href="<%=request.getContextPath()%>/Client/list"
+                   class="nav-link">Clients</a></li>
             <li><a href="<%=request.getContextPath()%>/Produit/list"
                    class="nav-link">Produits</a></li>
-            <li><a href="<%=request.getContextPath()%>/Client/list"
-                   class="nav-link">Client</a></li>
+            <li><a href="<%=request.getContextPath()%>/Commande/list"
+                   class="nav-link">Commande</a></li>
         </ul>
     </nav>
 </header>
@@ -141,7 +143,8 @@
             </table>
             <div class="focusguard" id="btnAjoute" tabindex="8" ></div>
 
-            <form id="myForm" action="<%=request.getContextPath()%>/Commande/add" method="POST">
+
+            <form id="myForm" action="<%=request.getContextPath()%>/Commande/add" method="POST" style="display: none">
                 <!-- Ajoutez vos champs de formulaire ici -->
                 <input type="hidden" name="para" id="para" value='' /> <!-- Remplacez par vos données JSON réelles -->
                 <button  class="btn btn-info" id="submitButton">Ajouter</button>
@@ -326,9 +329,9 @@
     }
     function showAjouterButton(){
         if(produits.length === 0){
-            document.getElementById("btnadd").style.display ="none";
+            document.getElementById("myForm").style.display ="none";
         } else {
-            document.getElementById("btnadd").style.display ="inline-block";
+            document.getElementById("myForm").style.display ="inline-block";
         }
     }
     var jsonString;
@@ -349,31 +352,34 @@
 
 
     }
-    document.getElementById("myForm").addEventListener("submit", function(event) {
-        event.preventDefault();// Empêche l'envoi du formulaire par défaut
-        addCommande();
-        document.getElementById("para").value = jsonString;
-        var form = event.target;
-        var formData = new FormData(form);
 
+    document.getElementById("submitButton").addEventListener("click", function(event) {
+        event.preventDefault(); // Empêche le comportement par défaut du bouton
+     addCommande();
+console.log(JSON.stringify({ data: jsonString }));
+console.log("----------------------------------------------");
+console.log(jsonString);
         // Vous pouvez ajouter d'autres données au besoin, par exemple :
         // formData.append("autreChamp", "valeur");
-
-        fetch(form.action, {
-            method: form.method,
-            body: formData
+        fetch('<%=request.getContextPath()%>/Commande/add', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: jsonString,
         })
-            .then(response => response.json())
-            .then(data => {
-                console.log('Succès :', data);
-                // Gérez la réponse ici si nécessaire
+            .then(response => {
+                if (response.ok) {
+                    // Redirection côté client
+                    window.location.href = '<%=request.getContextPath()%>/Commande/list';
+                } else {
+                    console.error('Erreur lors de la requête fetch : ', response.statusText);
+                }
             })
             .catch(error => {
-                console.error('Erreur :', error);
-                // Gérez l'erreur ici si nécessaire
+                console.error('Erreur lors de la requête fetch : ', error);
             });
     });
-
 </script>
 </body>
 </html>

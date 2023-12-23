@@ -11,7 +11,7 @@ import org.apache.logging.log4j.Logger;
 import java.io.IOException;
 import java.util.List;
 
-@WebServlet(name = "Client", urlPatterns = {"/","/Client","/Client/*"})
+@WebServlet(name = "Client", urlPatterns = {"/Client","/Client/*"})
 public class ClientServlet extends HttpServlet {
     private static   final Logger logger = LogManager.getLogger(ClientServlet.class);
     private ClientService clientService;
