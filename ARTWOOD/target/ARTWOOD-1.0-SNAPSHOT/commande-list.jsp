@@ -8,6 +8,18 @@
           href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css"
           integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T"
           crossorigin="anonymous">
+    <style>
+        /* Style par défaut pour les liens */
+
+
+
+
+        /* Style lorsqu'un lien est activé (clic) */
+        .nav-link:active {
+            color: black; /* ou la couleur que vous souhaitez pour le clic */
+            /* Ajoutez d'autres styles selon vos besoins */
+        }
+    </style>
 </head>
 <body>
 
@@ -46,25 +58,29 @@
             <thead>
             <tr>
                 <th>ID</th>
-                <th>Name</th>
-                <th>Email</th>
-                <th>Adress</th>
-                <th>Phone</th>
+                <th>Date Creation</th>
+                <th>Date Mis a jour</th>
+                <th>Nom Client</th>
+                <th>Status</th>
+                <th>Total (DH)</th>
+
             </tr>
             </thead>
-            <tbody>
             <!--   for (Todo todo: todos) {  -->
-            <c:forEach var="client" items="${listClient}">
+            <c:forEach var="commande" items="${commandes}">
 
                 <tr>
-                    <td><c:out value="${client.uuid}" /></td>
-                    <td><c:out value="${client.name}" /></td>
-                    <td><c:out value="${client.email}" /></td>
-                    <td><c:out value="${client.adress}" /></td>
-                    <td><c:out value="${client.phone}" /></td>
-                    <td><a href="<%=request.getContextPath()%>/Client/edit?id=<c:out value='${client.uuid}' />">Edit</a>
+                    <td><c:out value="${commande.uuid}" /></td>
+                    <td><c:out value="${commande.dateAjoute}" /></td>
+                    <td><c:out value="${commande.dateUpdate}" /></td>
+                    <td><c:out value="${commande.client.name}" /></td>
+                    <td><c:out value="${commande.commandeStatus}" /></td>
+                    <td><c:out value="${commande.total_amount}" /></td>
+                    <td><a href="<%=request.getContextPath()%>/Commande/edit?id=<c:out value='${commande.uuid}' />">Edit</a>
                         &nbsp;&nbsp;&nbsp;&nbsp; <a
-                                href="<%=request.getContextPath()%>/Client/delete?id=<c:out value='${client.uuid}' />">Delete</a></td>
+                                href="<%=request.getContextPath()%>/Commande/delete?id=<c:out value='${commande.uuid}' />">Delete</a>
+                        <a
+                                href="<%=request.getContextPath()%>/Commande/detail?id=<c:out value='${commande.uuid}' />">Detail</a></td>
                 </tr>
             </c:forEach>
             <!-- } -->

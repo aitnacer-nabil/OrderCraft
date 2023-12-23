@@ -10,11 +10,11 @@ import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
 
-public class IClientDaoImp implements IClientDao {
+public class ClientDaoImp implements IClientDao {
     private static   final Logger logger = LogManager.getLogger();
     private Connection connection;
 
-    public IClientDaoImp() {
+    public ClientDaoImp() {
         connection = ConnectionDB.getInstance();
         logger.info("Connection established");
     }

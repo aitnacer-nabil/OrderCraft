@@ -79,4 +79,17 @@ public class Commande {
     public void setTotal_amount(float total_amount) {
         this.total_amount = total_amount;
     }
+
+    @Override
+    public String toString() {
+        return "Commande{" +
+                "uuid='" + uuid + '\'' +
+                ", dateAjoute=" + dateAjoute +
+                ", dateUpdate=" + dateUpdate +
+                ", client=" + client +
+                ", commandeStatus=" + commandeStatus +
+                ", produitList=" + produitList +
+                ", total_amount=" + total_amount +
+                '}';
+    }
 }

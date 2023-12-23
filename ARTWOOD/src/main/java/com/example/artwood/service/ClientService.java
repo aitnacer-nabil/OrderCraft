@@ -1,7 +1,7 @@
 package com.example.artwood.service;
 
 import com.example.artwood.dao.IClientDao;
-import com.example.artwood.dao.impl.IClientDaoImp;
+import com.example.artwood.dao.impl.ClientDaoImp;
 import com.example.artwood.model.Client;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -13,7 +13,7 @@ public class ClientService {
     private static final Logger logger = LogManager.getLogger();
 
     public ClientService() {
-        this.IClientDao = new IClientDaoImp();
+        this.IClientDao = new ClientDaoImp();
     }
 
     public boolean addClient(Client client) {

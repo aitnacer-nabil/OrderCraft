@@ -1,21 +1,27 @@
 package com.example.artwood.dao.impl;
 
+import com.example.artwood.dao.IClientDao;
+import com.example.artwood.model.Client;
 import com.example.artwood.model.Commande;
 import com.example.artwood.dao.ICommandeDao;
+import com.example.artwood.model.CommandeStatus;
 import com.example.artwood.shared.ConnectionDB;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import java.sql.*;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
-public class ICommandeDaoImp implements ICommandeDao {
+public class CommandeDaoImp implements ICommandeDao {
     private static   final Logger logger = LogManager.getLogger();
     private Connection connection;
+    private IClientDao clientDao;
 
-    public ICommandeDaoImp() {
+    public CommandeDaoImp() {
         connection = ConnectionDB.getInstance();
+        clientDao = new ClientDaoImp();
         logger.info("CommandeDaoImp : Connection established");
     }
 
@@ -25,33 +31,18 @@ public class ICommandeDaoImp implements ICommandeDao {
         List<Commande> commandeList = new ArrayList<>();
 
         try {
-            String getAllQuery = "SELECT\n" +
-                    "    c.client_id,\n" +
-                    "    c.client_uuid,\n" +
-                    "    c.name AS client_name,\n" +
-                    "    cmd.commande_id,\n" +
-                    "    cmd.date_ajoute,\n" +
-                    "    cmd.commande_uuid,\n" +
-                    "    cmd.date_update,\n" +
-                    "    cmd.commande_status,\n" +
-                    "    p.produit_id,\n" +
-                    "    p.produit_uuid,\n" +
-                    "    p.name AS produit_name,\n" +
-                    "    p.description AS produit_description,\n" +
-                    "    p.prix\n" +
-                    "\n" +
-                    "FROM\n" +
-                    "    commande cmd\n" +
-                    "        JOIN\n" +
-                    "    client c ON cmd.client_id = c.client_id\n" +
-                    "        JOIN\n" +
-                    "    commande_produit cp ON cmd.commande_id = cp.commande_id\n" +
-                    "        JOIN\n" +
-                    "    produit p ON cp.produit_id = p.produit_id\n";
+            String query = "select * from commande;";
             Statement statement = connection.createStatement();
-            ResultSet resultSet = statement.executeQuery(getAllQuery);
+            ResultSet resultSet = statement.executeQuery(query);
             while (resultSet.next()) {
 
+                Commande commande = new Commande(
+                        resultSet.getTimestamp("date_ajoute"),
+                        resultSet.getTimestamp("date_update"),
+                        clientDao.getClientByUuid(resultSet.getString("client_uuid")),
+                        CommandeStatus.valueOf(resultSet.getString("commande_status")),
+
+                )
 
             }
             logger.info(" successfully get all all Commande");
@@ -75,6 +66,23 @@ public class ICommandeDaoImp implements ICommandeDao {
 
     @Override
     public boolean insertCommande(Commande commande) {
+        String query = "insert into commande ( client_uuid, commande_status, commande_uuid, commande_total) values (?,?,?,?)";
+        try {
+            PreparedStatement preparedStatement = connection.prepareStatement(query);
+            preparedStatement.setString(1, commande.getClient().getUuid());
+            preparedStatement.setString(2, commande.getCommandeStatus().name());
+            preparedStatement.setString(3, commande.getUuid());
+            preparedStatement.setFloat(4, commande.getTotal_amount());
+            int i = preparedStatement.executeUpdate();
+            if (i == 1){
+                logger.info("insert commande in commande table "+ commande);
+                return true;
+            }
+        } catch (SQLException e) {
+           logger.error("Error in inserting commande");
+           logger.error(e.getMessage());
+        }
+        logger.error("Error in inserting commande"+ commande);
         return false;
     }
 
@@ -87,6 +95,33 @@ public class ICommandeDaoImp implements ICommandeDao {
     public boolean deleteCommande(String uuid) {
         return false;
     }
+
+    @Override
+    public boolean insertInTableCommandeProduit(String commandeUUID, String produitUUID,int amount) {
+            String query = "insert into commande_produit (commande_uuid, produit_uuid,amount) values (?,?,?)";
+            try {
+                PreparedStatement preparedStatement = connection.prepareStatement(query);
+                preparedStatement.setString(1,commandeUUID);
+                preparedStatement.setString(2,produitUUID);
+                preparedStatement.setInt(3,amount);
+                int i = preparedStatement.executeUpdate();
+                if(i == 1){
+                    logger.info("insert into table commande_produit "+ commandeUUID + " , "+ produitUUID);
+                    return true;
+                } else {
+
+                }logger.info("not insert into table commande_produit "+ commandeUUID + " , "+ produitUUID);
+
+            } catch (SQLException e) {
+                logger.info("not insert into table commande_produit "+ commandeUUID + " , "+ produitUUID);
+                logger.error("Error insert into table commande_produit  ", e);
+
+            }
+
+
+        return false;
+    }
+
     private Commande generateCommandeFromResultSet(ResultSet resultSet) throws SQLException {
 //        int i= 0;
 //        do {

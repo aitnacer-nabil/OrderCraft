@@ -10,5 +10,6 @@ public interface IProduitDao {
     boolean updateProduit(String uuid , Produit produit);
     List<Produit> getAllProduits();
     Produit getProduitById(String uuid);
+    void   updateQteProduit(Produit produit);
 
 }

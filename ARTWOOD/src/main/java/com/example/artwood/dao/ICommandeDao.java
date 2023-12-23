@@ -11,5 +11,7 @@ public interface ICommandeDao {
     boolean insertCommande(Commande commande);
     boolean updateCommande(Commande commande);
     boolean deleteCommande(String uuid);
+    boolean insertInTableCommandeProduit(String commandeUUID, String produitUUID,int amount);
 
 }
+

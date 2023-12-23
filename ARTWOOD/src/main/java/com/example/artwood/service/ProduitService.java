@@ -1,7 +1,7 @@
 package com.example.artwood.service;
 
 import com.example.artwood.dao.IProduitDao;
-import com.example.artwood.dao.impl.IProduitDaoImp;
+import com.example.artwood.dao.impl.ProduitDaoImp;
 import com.example.artwood.model.Produit;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -15,7 +15,7 @@ public class ProduitService {
     public ProduitService(
 
     ) {
-        this.IProduitDao = new IProduitDaoImp();
+        this.IProduitDao = new ProduitDaoImp();
     }
 
     public boolean addProduit(Produit produit) {
@@ -41,5 +41,9 @@ public class ProduitService {
     public List<Produit> getAllProduits() {
         logger.info("Fetching all Produits");
         return IProduitDao.getAllProduits();
+    }
+    public void updateQtePRoduit(Produit produit){
+        logger.info("Updating Qte for produits : "+ produit);
+        IProduitDao.updateQteProduit(produit);
     }
 }

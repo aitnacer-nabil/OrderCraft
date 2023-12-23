@@ -10,11 +10,11 @@ import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
 
-public class IProduitDaoImp implements IProduitDao {
+public class ProduitDaoImp implements IProduitDao {
     private static   final Logger logger = LogManager.getLogger();
     private Connection connection;
 
-    public IProduitDaoImp() {
+    public ProduitDaoImp() {
         connection = ConnectionDB.getInstance();
         logger.info("Produit Connection established");
 
@@ -148,6 +148,29 @@ public class IProduitDaoImp implements IProduitDao {
         }
         logger.warn("produit not found in database");
         return null;
+    }
+
+
+    public void  updateQteProduit(Produit produit){
+
+        String query = "UPDATE produit SET qte_stock = qte_stock - ?, qte_order = qte_order + ? WHERE produit_uuid =?";
+
+        try {
+            PreparedStatement preparedStatement =  connection.prepareStatement(query);
+            preparedStatement.setInt(1,produit.getQte_order());
+            preparedStatement.setInt(2,produit.getQte_order());
+
+            preparedStatement.setString(3,produit.getUuid());
+
+            int i = preparedStatement.executeUpdate();
+            if(i == 1){
+                logger.info("Produit id : "+ produit.getUuid() +"Update stock and qte order");
+            }else {
+                logger.info("Produit id : "+ produit.getUuid() +"Not Update stock and qte order");
+            }
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
     }
 
 
