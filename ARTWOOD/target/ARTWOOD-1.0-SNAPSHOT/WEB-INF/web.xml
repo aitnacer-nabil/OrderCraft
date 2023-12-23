@@ -7,4 +7,12 @@
         <exception-type>java.lang.Exception</exception-type>
         <location>/Error.jsp</location>
     </error-page>
+    <filter>
+        <filter-name>CorsFilter</filter-name>
+        <filter-class>com.example.artwood.controller.CorsFilter</filter-class>
+    </filter>
+    <filter-mapping>
+        <filter-name>CorsFilter</filter-name>
+        <url-pattern>/*</url-pattern>
+    </filter-mapping>
 </web-app>

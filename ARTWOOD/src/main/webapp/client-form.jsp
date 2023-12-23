@@ -23,6 +23,8 @@
                    class="nav-link">Clients</a></li>
             <li><a href="<%=request.getContextPath()%>/Produit/list"
                    class="nav-link">Produits</a></li>
+            <li><a href="<%=request.getContextPath()%>/Commande/list"
+                   class="nav-link">Commande</a></li>
         </ul>
     </nav>
 </header>

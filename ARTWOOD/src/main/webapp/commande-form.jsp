@@ -20,10 +20,12 @@
         </div>
 
         <ul class="navbar-nav">
+            <li><a href="<%=request.getContextPath()%>/Client/list"
+                   class="nav-link">Clients</a></li>
             <li><a href="<%=request.getContextPath()%>/Produit/list"
                    class="nav-link">Produits</a></li>
-            <li><a href="<%=request.getContextPath()%>/Client/list"
-                   class="nav-link">Client</a></li>
+            <li><a href="<%=request.getContextPath()%>/Commande/list"
+                   class="nav-link">Commande</a></li>
         </ul>
     </nav>
 </header>
@@ -140,22 +142,25 @@
                 </tbody>
             </table>
             <div class="focusguard" id="btnAjoute" tabindex="8" ></div>
-            <button id="btnadd" type="button" id="save" class="btn btn-info" onclick="addCommande()" style="display: none">Ajouter
-            </button>
+
+
+            <form id="myForm" action="<%=request.getContextPath()%>/Commande/add" method="POST" style="display: none">
+                <!-- Ajoutez vos champs de formulaire ici -->
+                <input type="hidden" name="para" id="para" value='' /> <!-- Remplacez par vos données JSON réelles -->
+                <button  class="btn btn-info" id="submitButton">Ajouter</button>
+            </form>
         </div>
     </div>
 </div>
 
-<script src="component/jquery/jquery.js" type="text/javascript"></script>
-
+<script
+        src="https://code.jquery.com/jquery-3.7.1.min.js"
+        integrity="sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo="
+        crossorigin="anonymous"></script>
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
 
 
-<script src="component/shortcut.js" type="text/javascript"></script>
 
-
-<script src="component/jquery.validate.min.js" type="text/javascript"></script>
-<script src="//cdn.datatables.net/1.10.19/js/jquery.dataTables.min.js" type="text/javascript"></script>
 <script>
 
     let selectedProduit = null;
@@ -305,12 +310,16 @@
         document.getElementById('qty').value = "";
         document.getElementById('total_cost').value = "total_cost";
     }
+    let rows = [];
     function deleterow(e)
     {
         // console.log(produits);
         $(e).parent().parent().remove();
+        rows.push(e);
      //
         var uuid = $(e).attr('uuid');
+
+
         // console.log( typeof (uuid));
         // console.log(uuid);
         produits = produits.filter(produit=> produit.uuid !== uuid);
@@ -320,17 +329,57 @@
     }
     function showAjouterButton(){
         if(produits.length === 0){
-            document.getElementById("btnadd").style.display ="none";
+            document.getElementById("myForm").style.display ="none";
         } else {
-            document.getElementById("btnadd").style.display ="inline-block";
+            document.getElementById("myForm").style.display ="inline-block";
         }
     }
+    var jsonString;
     function addCommande(){
         if(produits.length === 0 || selectedClient === null)return;
-        let totalAmount =0;
-        produits.forEach(p => totalAmount += p.amount);
-        console.log(totalAmount);
+
+        let sendProduit = produits.map(produi =>({
+            uuid:produi.uuid,
+            qte_order:produi.qte_order,
+            produit_amount : produi.amount
+        }));
+        let commande ={
+            client_id:selectedClient.id,
+            list_produits: sendProduit,
+        }
+
+        jsonString = JSON.stringify(commande);
+
+
     }
+
+    document.getElementById("submitButton").addEventListener("click", function(event) {
+        event.preventDefault(); // Empêche le comportement par défaut du bouton
+     addCommande();
+console.log(JSON.stringify({ data: jsonString }));
+console.log("----------------------------------------------");
+console.log(jsonString);
+        // Vous pouvez ajouter d'autres données au besoin, par exemple :
+        // formData.append("autreChamp", "valeur");
+        fetch('<%=request.getContextPath()%>/Commande/add', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: jsonString,
+        })
+            .then(response => {
+                if (response.ok) {
+                    // Redirection côté client
+                    window.location.href = '<%=request.getContextPath()%>/Commande/list';
+                } else {
+                    console.error('Erreur lors de la requête fetch : ', response.statusText);
+                }
+            })
+            .catch(error => {
+                console.error('Erreur lors de la requête fetch : ', error);
+            });
+    });
 </script>
 </body>
 </html>
