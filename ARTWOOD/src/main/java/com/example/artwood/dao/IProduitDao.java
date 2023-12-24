@@ -11,5 +11,6 @@ public interface IProduitDao {
     List<Produit> getAllProduits();
     Produit getProduitById(String uuid);
     void   updateQteProduit(Produit produit);
+    List<Produit> getProduitsByCommande(String commandeUUID);
 
 }

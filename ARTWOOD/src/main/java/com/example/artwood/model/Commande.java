@@ -3,6 +3,7 @@ package com.example.artwood.model;
 import com.example.artwood.shared.Utils;
 
 import java.sql.Timestamp;
+import java.util.ArrayList;
 import java.util.List;
 
 public class Commande {
@@ -13,14 +14,17 @@ public class Commande {
     private CommandeStatus commandeStatus;
     private List<Produit> produitList;
     private float total_amount;
+    private String clientID;
 
-    public Commande( Timestamp dateAjoute, Timestamp dateUpdate, Client client, CommandeStatus commandeStatus, List<Produit> produitList, float total_amount) {
+
+
+    public Commande(Timestamp dateAjoute, Timestamp dateUpdate, String clientID, CommandeStatus commandeStatus, float total_amount) {
         this.uuid = Utils.GenerateId();
         this.dateAjoute = dateAjoute;
         this.dateUpdate = dateUpdate;
-        this.client = client;
+        this.clientID = clientID;
         this.commandeStatus = commandeStatus;
-        this.produitList = produitList;
+        this.produitList = new ArrayList<>();
         this.total_amount = total_amount;
     }
 
@@ -69,6 +73,7 @@ public class Commande {
     }
 
     public void setProduitList(List<Produit> produitList) {
+        this.produitList.clear();
         this.produitList = produitList;
     }
 
@@ -91,5 +96,12 @@ public class Commande {
                 ", produitList=" + produitList +
                 ", total_amount=" + total_amount +
                 '}';
+    }
+    public String getClientID() {
+        return clientID;
+    }
+
+    public void setClientID(String clientID) {
+        this.clientID = clientID;
     }
 }

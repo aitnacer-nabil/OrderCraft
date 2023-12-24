@@ -1,6 +1,7 @@
 package com.example.artwood.dao.impl;
 
 import com.example.artwood.dao.IClientDao;
+import com.example.artwood.dao.IProduitDao;
 import com.example.artwood.model.Client;
 import com.example.artwood.model.Commande;
 import com.example.artwood.dao.ICommandeDao;
@@ -13,15 +14,16 @@ import java.sql.*;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Queue;
 
 public class CommandeDaoImp implements ICommandeDao {
     private static   final Logger logger = LogManager.getLogger();
     private Connection connection;
-    private IClientDao clientDao;
+
 
     public CommandeDaoImp() {
         connection = ConnectionDB.getInstance();
-        clientDao = new ClientDaoImp();
+
         logger.info("CommandeDaoImp : Connection established");
     }
 
@@ -36,16 +38,13 @@ public class CommandeDaoImp implements ICommandeDao {
             ResultSet resultSet = statement.executeQuery(query);
             while (resultSet.next()) {
 
-                Commande commande = new Commande(
-                        resultSet.getTimestamp("date_ajoute"),
-                        resultSet.getTimestamp("date_update"),
-                        clientDao.getClientByUuid(resultSet.getString("client_uuid")),
-                        CommandeStatus.valueOf(resultSet.getString("commande_status")),
 
-                )
+                commandeList.add(generateCommandeFromResult(resultSet));
+
+
 
             }
-            logger.info(" successfully get all all Commande");
+            logger.info(" successfully get all all Commande " + commandeList);
 
         } catch (SQLException e) {
             logger.error("Error getting Commande ", e);
@@ -61,7 +60,31 @@ public class CommandeDaoImp implements ICommandeDao {
 
     @Override
     public Commande getCommande(String uuid) {
-        return null;
+        Commande commande = null;
+        logger.info("Attempting to get  Commande By id "+ uuid
+        );
+
+
+        try {
+            String query = "select * from commande where commande_uuid = ?;";
+            PreparedStatement preparedStatement = connection.prepareStatement(query);
+            preparedStatement.setString(1, uuid);
+            ResultSet resultSet = preparedStatement.executeQuery();
+            while (resultSet.next()) {
+
+
+                 commande = generateCommandeFromResult(resultSet);
+                logger.info("Getting Commande By id "+commande);
+
+
+
+            }
+
+        } catch (SQLException e) {
+            logger.error("Error getting Commande ", e);
+        }
+
+        return commande;
     }
 
     @Override
@@ -122,36 +145,37 @@ public class CommandeDaoImp implements ICommandeDao {
         return false;
     }
 
-    private Commande generateCommandeFromResultSet(ResultSet resultSet) throws SQLException {
-//        int i= 0;
-//        do {
-//            String client_uuid = resultSet.getString("client_uuid");
-//            String client_name = resultSet.getString("client_name");
-//            String client_phone = resultSet.getString("client_phone");
-//            String client_adress= resultSet.getString("client_adress");
-//            String client_email= resultSet.getString("client_email");
-//        }while (i != 1)
-//
-//        String  commande_uuid= resultSet.getString("commande_uuid");
-//        String total_amount = resultSet.getString("total_amount");
-//        Timestamp date_ajoute = resultSet.getTimestamp("date_ajoute");
-//        Timestamp date_update = resultSet.getTimestamp("date_update");
-//        CommandeStatus commandeStatus = CommandeStatus.valueOf(resultSet.getString("commande_status"));
-//        String produit_uuid = resultSet.getString("produit_uuid");
-//        String produit_name = resultSet.getString("produit_name");
-//        String produit_description = resultSet.getString("produit_description");
-//        float prix  = resultSet.getFloat("prix");
-//        int produit_qte_order = resultSet.getInt("qte_order");
-//        int produit_qte_stock= resultSet.getInt("qte_stock");
-//        Client client = new Client(client_name,client_email,client_phone,client_adress);
-//        client.setUuid(client_uuid);
-//        Produit produit = new Produit(produit_name,produit_description,prix,produit_qte_stock,produit_qte_order);
-//        produit.setUuid(produit_uuid);
+    @Override
+    public boolean changeStatutCommande(String commandeUUID,CommandeStatus commandeStatus) {
+        String query = "update commande set commande_status = ? , date_update = CURRENT_TIME where commande_uuid = ?;";
+        try {
+            PreparedStatement preparedStatement = connection.prepareStatement(query);
+            preparedStatement.setString(1,commandeStatus.name());
+            preparedStatement.setString(2,commandeUUID);
+            int i = preparedStatement.executeUpdate();
+            if(i ==1){
+                logger.info("successfully update statut on commande id " + commandeUUID);
+                return  true;
+            }
+        } catch (SQLException e) {
 
+            logger.error("Error ",e);
+        }
+        logger.info("Not update statut on commande id " + commandeUUID);
+        return false;
+    }
 
+    private Commande generateCommandeFromResult(ResultSet resultSet) throws SQLException {
+        Commande commande = new Commande(
+                resultSet.getTimestamp("date_ajoute"),
+                resultSet.getTimestamp("date_update"),
+                resultSet.getString("client_uuid"),
+                CommandeStatus.valueOf(resultSet.getString("commande_status")),
+                resultSet.getFloat("commande_total")
 
-
-        return null;
+        );
+        commande.setUuid(resultSet.getString("commande_uuid"));
+        return commande;
     }
 
 

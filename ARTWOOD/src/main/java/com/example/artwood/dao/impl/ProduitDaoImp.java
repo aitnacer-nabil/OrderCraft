@@ -117,16 +117,7 @@ public class ProduitDaoImp implements IProduitDao {
         return produits;
     }
 
-    private Produit generateProduitFromResult(ResultSet resultSet) throws SQLException {
-        String uuid = resultSet.getString("produit_uuid");
-        String name = resultSet.getString("name");
-        String  description= resultSet.getString("description");
-        float prix = resultSet.getFloat("prix");
-        int qte_stock = resultSet.getInt("qte_stock");
-        Produit produit = new Produit(name,description,prix,qte_stock);
-        produit.setUuid(uuid);
-        return produit;
-    }
+
 
     @Override
     public Produit getProduitById(String uuid) {
@@ -173,5 +164,37 @@ public class ProduitDaoImp implements IProduitDao {
         }
     }
 
+    @Override
+    public List<Produit> getProduitsByCommande(String commandeUUID) {
+        List<Produit> produits = new ArrayList<>();
+        String query = "SELECT produit.*\n" +
+                "FROM commande_produit\n" +
+                "         JOIN produit ON commande_produit.produit_uuid = produit.produit_uuid\n" +
+                "WHERE commande_produit.commande_uuid = ?;";
+        try {
+            PreparedStatement preparedStatement = connection.prepareStatement(query);
+            preparedStatement.setString(1,commandeUUID);
+            ResultSet resultSet = preparedStatement.executeQuery();
+            while (resultSet.next()){
+                produits.add(generateProduitFromResult(resultSet));
+                logger.info("Succefully add produit to list for commande produits");
+            }
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+        return produits;
+    }
 
+    private Produit generateProduitFromResult(ResultSet resultSet) throws SQLException {
+        String uuid = resultSet.getString("produit_uuid");
+        String name = resultSet.getString("name");
+        String  description= resultSet.getString("description");
+        float prix = resultSet.getFloat("prix");
+        int qte_stock = resultSet.getInt("qte_stock");
+        int qte_order = resultSet.getInt("qte_order");
+        Produit produit = new Produit(name,description,prix,qte_stock);
+        produit.setUuid(uuid);
+        produit.setQte_order(qte_order);
+        return produit;
+    }
 }

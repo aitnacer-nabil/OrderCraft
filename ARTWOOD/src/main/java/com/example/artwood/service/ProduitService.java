@@ -46,4 +46,7 @@ public class ProduitService {
         logger.info("Updating Qte for produits : "+ produit);
         IProduitDao.updateQteProduit(produit);
     }
+    public List<Produit> getProduitsByCommande(String commandeUUID){
+        return  IProduitDao.getProduitsByCommande(commandeUUID);
+    }
 }

@@ -172,6 +172,10 @@ SELECT  name, description, prix, produit_uuid,qte_stock from produit;
 insert into commande_produit (commande_uuid, produit_uuid) values (?,?);
 insert into commande (date_ajoute, date_update, client_uuid, commande_status, commande_uuid, commande_total) values (?,?,?,?,?,?);
 select * from produit;
-UPDATE produit SET qte_stock = qte_stock - 4, qte_order = qte_order + 2 WHERE produit_uuid ='3a12bb'
+select  * from commande;
 
-1
+SELECT produit.*
+FROM commande_produit
+         JOIN produit ON commande_produit.produit_uuid = produit.produit_uuid
+WHERE commande_produit.commande_uuid = '8549c6';
+update commande set commande_status = ? where commande_uuid = ?;

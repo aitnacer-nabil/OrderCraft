@@ -43,6 +43,10 @@ public class CommandeServelt extends HttpServlet {
                 logger.info("Inserting Commande..."); // Log the case
                 showAddForm(req, resp);
                 break;
+            case "/Commande/edit":
+                logger.info("Show Edit Form Commande");
+                showEditFormCommande(req,resp);
+                break;
 
 
             default:
@@ -50,6 +54,29 @@ public class CommandeServelt extends HttpServlet {
                 listCommandes(req, resp);
                 break;
         }
+    }
+
+    private void changeStatutCommande(HttpServletRequest req, HttpServletResponse resp) throws IOException, ServletException {
+        String uuid = req.getParameter("commandeId");
+        String status = req.getParameter("statut");
+        if(commandeService.changeStatutCommande(uuid,status)){
+            resp.sendRedirect("list");
+        } else {
+            RequestDispatcher dispatcher = req.getRequestDispatcher("/Error.jsp");
+
+            dispatcher.forward(req, resp);
+        }
+    }
+
+    private void showEditFormCommande(HttpServletRequest req, HttpServletResponse resp) throws IOException {
+
+
+        String uuid = req.getParameter("id");
+        logger.info("showing edit form for commande id " + uuid );
+        Commande commande = commandeService.getCommandeById(uuid);
+
+        logger.info("showing edit form for commande  " +commande );
+        resp.sendRedirect("list");
     }
 
 
@@ -62,6 +89,10 @@ public class CommandeServelt extends HttpServlet {
         switch (action) {
             case "/Commande/add":
                 addCommande(req, resp);
+                break;
+            case "/Commande/status":
+                logger.info("Change status commande ");
+                changeStatutCommande(req,resp);
                 break;
             default:
                 logger.info("Listing Commande...");
@@ -112,8 +143,8 @@ public class CommandeServelt extends HttpServlet {
 
     private void listCommandes(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 
-//        List<Client> clients = clientService.getAllClients();
-//        request.setAttribute("listClient",clients);
+     List< Commande> commandes = commandeService.getAllCommandes();
+        request.setAttribute("commandes",commandes);
         RequestDispatcher dispatcher = request.getRequestDispatcher("/commande-list.jsp");
         dispatcher.forward(request, response);
         logger.info("Forwarded to commande-list.jsp");

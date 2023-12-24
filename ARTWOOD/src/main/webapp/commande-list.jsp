@@ -1,6 +1,6 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8"
-         pageEncoding="UTF-8"%>
-<%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c"%>
+         pageEncoding="UTF-8" %>
+<%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
 <html>
 <head>
     <title>Commande Management Application</title>
@@ -12,13 +12,31 @@
         /* Style par défaut pour les liens */
 
 
-
-
         /* Style lorsqu'un lien est activé (clic) */
         .nav-link:active {
             color: black; /* ou la couleur que vous souhaitez pour le clic */
             /* Ajoutez d'autres styles selon vos besoins */
         }
+
+        .status-complet {
+            color: white;
+            background-color: green;
+        }
+
+        .status-annulle {
+            color: white;
+            background-color: red;
+        }
+
+        .status-preparation {
+            color: white;
+            background-color: orange;
+        }
+        table{
+            text-align: center;
+        }
+
+
     </style>
 </head>
 <body>
@@ -70,23 +88,176 @@
             <c:forEach var="commande" items="${commandes}">
 
                 <tr>
-                    <td><c:out value="${commande.uuid}" /></td>
-                    <td><c:out value="${commande.dateAjoute}" /></td>
-                    <td><c:out value="${commande.dateUpdate}" /></td>
-                    <td><c:out value="${commande.client.name}" /></td>
-                    <td><c:out value="${commande.commandeStatus}" /></td>
-                    <td><c:out value="${commande.total_amount}" /></td>
-                    <td><a href="<%=request.getContextPath()%>/Commande/edit?id=<c:out value='${commande.uuid}' />">Edit</a>
-                        &nbsp;&nbsp;&nbsp;&nbsp; <a
-                                href="<%=request.getContextPath()%>/Commande/delete?id=<c:out value='${commande.uuid}' />">Delete</a>
-                        <a
-                                href="<%=request.getContextPath()%>/Commande/detail?id=<c:out value='${commande.uuid}' />">Detail</a></td>
+                    <td><c:out value="${commande.uuid}"/></td>
+                    <td><c:out value="${commande.dateAjoute}"/></td>
+                    <td><c:out value="${commande.dateUpdate}"/></td>
+                    <td><c:out value="${commande.client.name}"/></td>
+                    <td class="status-${commande.commandeStatus.name().toLowerCase()}">
+                         <c:out value="${commande.commandeStatus}"/></td>
+                    <td><c:out value="${commande.total_amount}"/></td>
+                    <td>
+                        <button type="button" class="btn btn-primary" data-toggle="modal"
+                                data-target="#changeStatusModal" uuid="${commande.uuid}" onclick="setCommandeId(this)">
+                            Changer le statut
+                        </button>
+                    </td>
+                    <td><a href="<%=request.getContextPath()%>/Commande/delete?id=<c:out value='${commande.uuid}' />">Delete</a>
+                    </td>
+                    <td>
+                        <button type="button" class="btn btn-primary" data-toggle="modal" data-commande=${commande}
+                                data-target="#detailModal" onclick="afficherDetails('${commande.uuid}', '${commande.client}', '${commande.produitList}')">
+                            Detail
+                        </button>
+                    </td>
                 </tr>
             </c:forEach>
             <!-- } -->
             </tbody>
 
         </table>
+        <!-- Bouton pour afficher la fenêtre contextuelle -->
+
+
+        <!-- Fenêtre contextuelle -->
+        <div class="modal fade" id="changeStatusModal" tabindex="-1" role="dialog"
+             aria-labelledby="changeStatusModalLabel" aria-hidden="true">
+            <div class="modal-dialog" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="changeStatusModalLabel">Sélectionner un nouveau statut</h5>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    <div class="modal-body">
+                        <!-- Formulaire pour sélectionner un nouveau statut -->
+                        <form action="status" method="POST">
+                            <input type="hidden" id="commandeId" name="commandeId" value="">
+                            <div class="form-group">
+                                <label for="statusSelect">Statut :</label>
+                                <select class="form-control" id="statusSelect" name="statut">
+                                    <option value="PREPARATION">PREPARATION</option>
+                                    <option value="COMPLET">COMPLET</option>
+                                    <option value="ANNULLE">ANNULLE</option>
+                                </select>
+                            </div>
+                            <button type="submit" class="btn btn-primary">Soumettre</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- Bouton pour afficher la fenêtre modale -->
+        <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#detailModal">
+            Détails
+        </button>
+
+        <!-- Fenêtre modale pour les détails -->
+        <div class="modal fade" id="detailModal" tabindex="-1" role="dialog" aria-labelledby="detailModalLabel" aria-hidden="true">
+            <div class="modal-dialog" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h1 class="modal-title" id="detailModalLabel">Detail Pour Commande : </h1>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Fermer">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    <div class="modal-body">
+                        <h2>Client</h2>
+                        <!-- Contenu des détails dans un tableau -->
+                        <table class="table table-bordered">
+                            <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>Name</th>
+                                <th>Email</th>
+                                <th>Adress</th>
+                                <th>Phone</th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td><c:out value="${commande.client.uuid}" /></td>
+                                    <td><c:out value="${commande.client.name}" /></td>
+                                    <td><c:out value="${commande.client.email}" /></td>
+                                    <td><c:out value="${commande.client.adress}" /></td>
+                                    <td><c:out value="${commande.client.phone}" /></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                        <h2>Produits</h2>
+                        <table class="table table-bordered">
+                            <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>Name</th>
+                                <th>Description</th>
+                                <th>Prix</th>
+                                <th>Qte Order</th>
+                                <th>Amount</th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            <!--   for (Todo todo: todos) {  -->
+                            <c:forEach var="produit" items="${commande.produitList}">
+
+                                <tr>
+                                    <td><c:out value="${produit.uuid}" /></td>
+                                    <td><c:out value="${produit.name}" /></td>
+                                    <td><c:out value="${produit.description}" /></td>
+                                    <td><c:out value="${produit.prix}" /></td>
+                                    <td><c:out value="${produit.qte_order}" /></td>
+                                    <td><c:out value="${produit.amount}" /></td>
+
+                                </tr>
+                            </c:forEach>
+                            <!-- } -->
+                            </tbody>
+                        </table>
+                        <h2>Statut: <c:out value="${commande.commandeStatus.name()}" /></h2>
+                        <h2>Total Amount : <c:out value="${commande.total_amount}" /> </h2>
+                    </div>
+                    <div class="modal-footer">
+                        <!-- Bouton pour fermer la fenêtre modale -->
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Fermer</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Inclure les fichiers JavaScript Bootstrap (jQuery requis) -->
+        <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"></script>
+        <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"></script>
+
+        <!-- Inclure les fichiers JavaScript Bootstrap (jQuery requis) -->
+        <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"></script>
+        <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"></script>
+        <script>
+            function setCommandeId(button) {
+
+                var uuid = button.getAttribute('uuid');
+                document.getElementById("commandeId").value = uuid;
+                // Utiliser la valeur de uuid comme nécessaire
+                console.log('UUID de la commande : ' + uuid);
+
+            }
+
+            function afficherDetails(uuid,client,produits) {
+                // Récupérer l'objet commande depuis l'attribut data-commande
+
+
+                // Utiliser l'objet commande comme nécessaire
+                console.log(uuid);
+                console.log(client);
+                console.log(produits);
+
+                // Ici, vous pouvez mettre à jour le contenu de la fenêtre modale avec les détails de la commande
+                // Par exemple, en utilisant jQuery pour manipuler le DOM
+
+            }
+        </script>
     </div>
 </div>
 </body>
