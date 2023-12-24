@@ -116,6 +116,22 @@ public class CommandeDaoImp implements ICommandeDao {
 
     @Override
     public boolean deleteCommande(String uuid) {
+        logger.info("Attempting to delete Commande");
+        try (
+                PreparedStatement preparedStatement = connection.prepareStatement(
+                        "delete from commande where commande_uuid = ?;"
+                )) {
+            preparedStatement.setString(1, uuid);
+            int result = preparedStatement.executeUpdate();
+            if ( result ==1 ){
+                logger.info("Commande  Deleted");
+                return true;
+            }
+        } catch (SQLException e) {
+            //TODO java.sql.SQLIntegrityConstraintViolationException
+            logger.error("Error deleting commande", e);
+        }
+        logger.warn("Commande Not Deleted");
         return false;
     }
 

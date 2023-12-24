@@ -47,7 +47,10 @@ public class CommandeServelt extends HttpServlet {
                 logger.info("Show Edit Form Commande");
                 showEditFormCommande(req,resp);
                 break;
-
+            case "/Commande/delete":
+                logger.info("Deleting client..."); // Log the case
+                deleteClient(req,resp);
+                break;
 
             default:
                 logger.info("Listing Commande...");
@@ -94,6 +97,7 @@ public class CommandeServelt extends HttpServlet {
                 logger.info("Change status commande ");
                 changeStatutCommande(req,resp);
                 break;
+
             default:
                 logger.info("Listing Commande...");
                 listCommandes(req, resp);
@@ -148,5 +152,11 @@ public class CommandeServelt extends HttpServlet {
         RequestDispatcher dispatcher = request.getRequestDispatcher("/commande-list.jsp");
         dispatcher.forward(request, response);
         logger.info("Forwarded to commande-list.jsp");
+    }
+    private void deleteClient(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+
+        String id = request.getParameter("id");
+        commandeService.deleteCommande(id);
+        response.sendRedirect("list");
     }
 }

@@ -110,5 +110,8 @@ public class CommandeService {
         }
         return  false;
     }
+    public  boolean deleteCommande(String uuid){
+        return commandeDao.deleteCommande(uuid);
+    }
 
 }

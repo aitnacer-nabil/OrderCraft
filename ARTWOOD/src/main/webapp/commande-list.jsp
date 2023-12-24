@@ -66,12 +66,12 @@
     <!-- <div class="alert alert-success" *ngIf='message'>{{message}}</div> -->
 
     <div class="container">
-        <h3 class="text-center">List Commande</h3>
+        <h3 class="text-center">liste de commandes</h3>
         <hr>
         <div class="container text-left">
 
-            <a href="<%=request.getContextPath()%>/Commande/add" class="btn btn-success">Add
-                New Commande</a>
+            <a href="<%=request.getContextPath()%>/Commande/add" class="btn btn-success">Ajouter
+                nouveau  Commande</a>
         </div>
         <br>
         <table class="table table-bordered">
@@ -103,7 +103,8 @@
                             Changer le statut
                         </button>
                     </td>
-                    <td><a href="<%=request.getContextPath()%>/Commande/delete?id=<c:out value='<c:out value="${commande}"/>' />">Delete</a>
+                    <td><a
+                            href="<%=request.getContextPath()%>/Commande/delete?id=<c:out value='${commande.uuid}' />">Delete</a>
                     </td>
                     <td>
                         <button type="button" class="btn btn-primary" data-toggle="modal" data-commande='<c:out value="${commande.toJson().toString()}"/>'
@@ -149,10 +150,7 @@
                 </div>
             </div>
         </div>
-        <!-- Bouton pour afficher la fenêtre modale -->
-        <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#detailModal">
-            Détails
-        </button>
+
 
         <!-- Fenêtre modale pour les détails -->
         <div class="modal fade custom-modal" id="detailModal" tabindex="-1" role="dialog" aria-labelledby="detailModalLabel" aria-hidden="true">

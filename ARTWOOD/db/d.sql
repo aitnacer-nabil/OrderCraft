@@ -59,7 +59,7 @@ CREATE TABLE IF NOT EXISTS `commande`
     `commande_total` float not null default '0.0',
     PRIMARY KEY (`commande_uuid`),
     KEY `client_id` (`client_uuid`),
-    CONSTRAINT `commande_ibfk_2` FOREIGN KEY (`client_uuid`) REFERENCES `client` (`client_uuid`)
+    CONSTRAINT `commande_ibfk_2` FOREIGN KEY (`client_uuid`) REFERENCES `client` (`client_uuid`) on delete cascade  on update cascade
 ) ENGINE = InnoDB
   AUTO_INCREMENT = 5
   DEFAULT CHARSET = utf8mb4
@@ -80,8 +80,8 @@ CREATE TABLE IF NOT EXISTS `commande_produit`
     `amount` int not null default 0,
     PRIMARY KEY (`commande_uuid`, `produit_uuid`),
     KEY `produit_id` (`produit_uuid`),
-    CONSTRAINT `commande_produit_ibfk_1` FOREIGN KEY (`commande_uuid`) REFERENCES `commande` (`commande_uuid`),
-    CONSTRAINT `commande_produit_ibfk_2` FOREIGN KEY (`produit_uuid`) REFERENCES `produit` (`produit_uuid`)
+    CONSTRAINT `commande_produit_ibfk_1` FOREIGN KEY (`commande_uuid`) REFERENCES `commande` (`commande_uuid`) on delete cascade  on update cascade,
+    CONSTRAINT `commande_produit_ibfk_2` FOREIGN KEY (`produit_uuid`) REFERENCES `produit` (`produit_uuid`) on delete cascade  on update cascade
 ) ENGINE = InnoDB
   DEFAULT CHARSET = utf8mb4
   COLLATE = utf8mb4_0900_ai_ci;
@@ -100,29 +100,6 @@ VALUES ( 'Moroccan Table', 'Handcrafted wooden table inspired by Moroccan design
        ( 'Atlas Mountains Painting', 'Canvas painting depicting the scenic beauty of the Atlas Mountains.', 300, 8,
          '3a12fb');
 -- Dumping data for table wood.commande_produit: ~0 rows (approximately)
-INSERT INTO `commande_produit` (`commande_id`, `produit_id`)
-VALUES (4, 1),
-       (2, 2),
-       (4, 2),
-       (1, 3),
-       (3, 3),
-       (4, 3),
-       (2, 4),
-       (4, 4),
-       (1, 5),
-       (3, 5),
-       (4, 5),
-       (2, 6),
-       (4, 6),
-       (1, 7),
-       (3, 7),
-       (4, 7),
-       (2, 8),
-       (4, 8),
-       (3, 9),
-       (4, 9),
-       (2, 10),
-       (4, 10);
 
 
 -- Dumping structure for table wood.user
@@ -179,3 +156,4 @@ FROM commande_produit
          JOIN produit ON commande_produit.produit_uuid = produit.produit_uuid
 WHERE commande_produit.commande_uuid = '8549c6';
 update commande set commande_status = ? where commande_uuid = ?;
+delete from commande where commande_uuid = ?;
