@@ -22,7 +22,9 @@
             color: white;
             background-color: green;
         }
-
+        .custom-modal .modal-dialog {
+            max-width: 80%; /* Ajustez la largeur maximale selon vos besoins */
+        }
         .status-annulle {
             color: white;
             background-color: red;
@@ -101,11 +103,11 @@
                             Changer le statut
                         </button>
                     </td>
-                    <td><a href="<%=request.getContextPath()%>/Commande/delete?id=<c:out value='${commande.uuid}' />">Delete</a>
+                    <td><a href="<%=request.getContextPath()%>/Commande/delete?id=<c:out value='<c:out value="${commande}"/>' />">Delete</a>
                     </td>
                     <td>
-                        <button type="button" class="btn btn-primary" data-toggle="modal" data-commande=${commande}
-                                data-target="#detailModal" onclick="afficherDetails('${commande.uuid}', '${commande.client}', '${commande.produitList}')">
+                        <button type="button" class="btn btn-primary" data-toggle="modal" data-commande='<c:out value="${commande.toJson().toString()}"/>'
+                                data-target="#detailModal" onclick="showDetail(this)">
                             Detail
                         </button>
                     </td>
@@ -153,11 +155,11 @@
         </button>
 
         <!-- Fenêtre modale pour les détails -->
-        <div class="modal fade" id="detailModal" tabindex="-1" role="dialog" aria-labelledby="detailModalLabel" aria-hidden="true">
+        <div class="modal fade custom-modal" id="detailModal" tabindex="-1" role="dialog" aria-labelledby="detailModalLabel" aria-hidden="true">
             <div class="modal-dialog" role="document">
                 <div class="modal-content">
                     <div class="modal-header">
-                        <h1 class="modal-title" id="detailModalLabel">Detail Pour Commande : </h1>
+                        <h1 class="modal-title" id="detailModalLabel">Detail Pour Commande : <span id="uuid"></span></h1>
                         <button type="button" class="close" data-dismiss="modal" aria-label="Fermer">
                             <span aria-hidden="true">&times;</span>
                         </button>
@@ -165,7 +167,7 @@
                     <div class="modal-body">
                         <h2>Client</h2>
                         <!-- Contenu des détails dans un tableau -->
-                        <table class="table table-bordered">
+                        <table class="table table-bordered" id="table_client">
                             <thead>
                             <tr>
                                 <th>ID</th>
@@ -176,46 +178,26 @@
                             </tr>
                             </thead>
                             <tbody>
-                                <tr>
-                                    <td><c:out value="${commande.client.uuid}" /></td>
-                                    <td><c:out value="${commande.client.name}" /></td>
-                                    <td><c:out value="${commande.client.email}" /></td>
-                                    <td><c:out value="${commande.client.adress}" /></td>
-                                    <td><c:out value="${commande.client.phone}" /></td>
-                                </tr>
+
                             </tbody>
                         </table>
                         <h2>Produits</h2>
-                        <table class="table table-bordered">
+                        <table class="table table-bordered" id="table_produit">
                             <thead>
                             <tr>
                                 <th>ID</th>
                                 <th>Name</th>
                                 <th>Description</th>
                                 <th>Prix</th>
-                                <th>Qte Order</th>
-                                <th>Amount</th>
+
                             </tr>
                             </thead>
                             <tbody>
-                            <!--   for (Todo todo: todos) {  -->
-                            <c:forEach var="produit" items="${commande.produitList}">
 
-                                <tr>
-                                    <td><c:out value="${produit.uuid}" /></td>
-                                    <td><c:out value="${produit.name}" /></td>
-                                    <td><c:out value="${produit.description}" /></td>
-                                    <td><c:out value="${produit.prix}" /></td>
-                                    <td><c:out value="${produit.qte_order}" /></td>
-                                    <td><c:out value="${produit.amount}" /></td>
-
-                                </tr>
-                            </c:forEach>
                             <!-- } -->
                             </tbody>
                         </table>
-                        <h2>Statut: <c:out value="${commande.commandeStatus.name()}" /></h2>
-                        <h2>Total Amount : <c:out value="${commande.total_amount}" /> </h2>
+
                     </div>
                     <div class="modal-footer">
                         <!-- Bouton pour fermer la fenêtre modale -->
@@ -257,6 +239,41 @@
                 // Par exemple, en utilisant jQuery pour manipuler le DOM
 
             }
+            function showDetail(button) {
+                var commandeDataString = button.getAttribute('data-commande');
+
+                // Parsez la chaîne JSON en un objet JavaScript
+                var commandeObj = JSON.parse(commandeDataString);
+                $("#detailModal #uuid").innerText = commandeObj.uuid;
+
+                var table1 =
+                    "<tr>" +
+                    "<td>" + commandeObj.client.uuid + "</td>" +
+                    "<td>" + commandeObj.client.name + "</td>" +
+                    "<td>" + commandeObj.client.email + "</td>" +
+                    "<td>" + commandeObj.client.adress + "</td>" +
+                    "<td>" + commandeObj.client.phone + "</td>" +
+                    "</tr>";
+                $("#table_client tbody").append(table1);
+                console.log(commandeObj);
+                commandeObj.produitList.forEach(produit => {
+                    var table2 =
+                        "<tr>" +
+                        "<td>" + produit.uuid + "</td>" +
+                        "<td>" + produit.name + "</td>" +
+                        "<td>" + produit.description + "</td>" +
+                        "<td>" + produit.prix + "</td>" +
+                        "</tr>";
+                    $("#table_produit tbody").append(table2);
+                })
+
+            }
+            $('#detailModal').on('hidden.bs.modal', function () {
+                // Code à exécuter lorsque la fenêtre modale se ferme
+                console.log("La fenêtre modale s'est fermée");
+                $("#table_client tbody").empty();
+                $("#table_produit tbody").empty();
+            });
         </script>
     </div>
 </div>

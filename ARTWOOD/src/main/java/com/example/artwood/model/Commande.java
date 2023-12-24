@@ -1,6 +1,9 @@
 package com.example.artwood.model;
 
 import com.example.artwood.shared.Utils;
+import com.google.gson.Gson;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
 
 import java.sql.Timestamp;
 import java.util.ArrayList;
@@ -103,5 +106,11 @@ public class Commande {
 
     public void setClientID(String clientID) {
         this.clientID = clientID;
+    }
+    public JsonObject toJson() {
+        Gson gson = new Gson();
+        String json = gson.toJson(this);
+        JsonParser jsonParser = new JsonParser();
+        return jsonParser.parse(json).getAsJsonObject();
     }
 }
